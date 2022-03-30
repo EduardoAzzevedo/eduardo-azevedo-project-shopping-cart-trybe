@@ -43,7 +43,6 @@ function createProductItemElement({ sku, name, image }) {
   return section;
 }
 
-
 async function getAndDisplayItems() {
   const fetchedItems = await fetchProducts();
   const section = document.querySelector('.items');
@@ -64,12 +63,14 @@ function getSkuFromProductItem(item) {
 
 const localStorageLis = () => {
   const gettingLiFromStorage = getSavedCartItems();
-  gettingLiFromStorage.addEventListener('click', cartItemClickListener);
+  const ol = document.querySelector('ol');
+  ol.innerHTML = gettingLiFromStorage;
+  const getLi = document.querySelectorAll('li');
+  console.log(getLi);
+  getLi.forEach((li) => li.addEventListener('click', cartItemClickListener));
 };
-localStorageLis();
 
 window.onload = async () => {
   await getAndDisplayItems();
-  getSavedCartItems();
+  localStorageLis();
  };
- 
