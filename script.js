@@ -1,3 +1,7 @@
+const cartItem = '.cart__item';
+
+const totalPrice = documente.querySelector('.total-price');
+
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
   img.className = 'item__image';
@@ -11,8 +15,19 @@ function createCustomElement(element, className, innerText) {
   return e;
 }
 
+const totalPrices = () => {
+  const everyLi = Array.from(document.querySelectorAll(cartItem)); // Transforma em array.
+  const total = everyLi.reduce((acc, li) => {
+    const priceOfItem = Number(li.innerText.split('PRICE: $')[1]); // Split para separar o PRICE: $
+    return acc + priceOfItem; // o valor do produto fica no index[1]
+  }, 0);
+
+  totalPrice.innerText = `${total}`;
+};
+
 function cartItemClickListener(event) {
-  event.target.remove(); 
+  event.target.remove(); // remove o item clicado
+  totalPrices(); // quando remover um item, mostra o valor atualizado
 }
 
 function createCartItemElement({ id: sku, title: name, price: salePrice }) {
@@ -33,6 +48,7 @@ function createProductItemElement({ sku, name, image }) {
     const ol = document.querySelector('.cart__items');
     ol.appendChild(itemToCart);
     saveCartItems();
+    totalPrices();
   });
 
   section.appendChild(createCustomElement('span', 'item__sku', sku));
@@ -44,9 +60,9 @@ function createProductItemElement({ sku, name, image }) {
 }
 
 async function getAndDisplayItems() {
-  const fetchedItems = await fetchProducts();
+  const fetchedItems = await fetchProducts('computador');
   const section = document.querySelector('.items');
-  const getItems = fetchedItems.forEach((item) => {
+  const getItems = fetchedItems.results.forEach((item) => {
     const product = {
       sku: item.id,
       name: item.title,
@@ -66,9 +82,17 @@ const localStorageLis = () => {
   const ol = document.querySelector('ol');
   ol.innerHTML = gettingLiFromStorage;
   const getLi = document.querySelectorAll('li');
-  console.log(getLi);
   getLi.forEach((li) => li.addEventListener('click', cartItemClickListener));
 };
+
+const eraseCart = () => {
+  const eraseCartBtn = document.querySelector('.empty-cart');
+  eraseCartBtn.addEventListener('click', () => {
+    document.querySelectorAll(cartItem).forEach((item) => item.remove());
+    totalPrice.innerText = '0';
+  });
+};
+eraseCart();
 
 window.onload = async () => {
   await getAndDisplayItems();
