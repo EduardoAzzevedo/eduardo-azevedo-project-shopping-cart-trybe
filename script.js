@@ -1,6 +1,6 @@
 const cartItem = '.cart__item';
 
-const totalPrice = documente.querySelector('.total-price');
+const totalPrice = document.querySelector('.total-price');
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -21,13 +21,17 @@ const totalPrices = () => {
     const priceOfItem = Number(li.innerText.split('PRICE: $')[1]); // Split para separar o PRICE: $
     return acc + priceOfItem; // o valor do produto fica no index[1]
   }, 0);
-
+  if (!total) {
+    totalPrice.innerText = 0;
+  return;
+}
   totalPrice.innerText = `${total}`;
 };
 
 function cartItemClickListener(event) {
   event.target.remove(); // remove o item clicado
   totalPrices(); // quando remover um item, mostra o valor atualizado
+  saveCartItems();
 }
 
 function createCartItemElement({ id: sku, title: name, price: salePrice }) {
@@ -62,7 +66,7 @@ function createProductItemElement({ sku, name, image }) {
 async function getAndDisplayItems() {
   const fetchedItems = await fetchProducts('computador');
   const section = document.querySelector('.items');
-  const getItems = fetchedItems.results.forEach((item) => {
+  const getItems = fetchedItems.forEach((item) => {
     const product = {
       sku: item.id,
       name: item.title,
@@ -89,12 +93,27 @@ const eraseCart = () => {
   const eraseCartBtn = document.querySelector('.empty-cart');
   eraseCartBtn.addEventListener('click', () => {
     document.querySelectorAll(cartItem).forEach((item) => item.remove());
-    totalPrice.innerText = '0';
+    totalPrices();
+    saveCartItems();
   });
 };
 eraseCart();
 
+const loadMsg = () => {
+  const loadText = document.createElement('p');
+  loadText.innerText = 'carregando...';
+  loadText.className = 'loading';
+  const span = document.querySelector('.cart__title');
+  span.appendChild(loadText);
+};
+
+const remLoading = () => {
+  document.querySelector('.loading').remove();
+};
+
 window.onload = async () => {
+  loadMsg();
   await getAndDisplayItems();
+  remLoading();
   localStorageLis();
- };
+};
